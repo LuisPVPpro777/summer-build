@@ -131,6 +131,16 @@ body::before {
     color: #000;
 }
 
+/* Hide Emergent platform badge if injected by external scripts */
+#emergent-badge,
+a[href*="emergent.sh"],
+[id*="emergent-badge"] {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
+
 /* scrollbar */
 ::-webkit-scrollbar {
     width: 8px;
