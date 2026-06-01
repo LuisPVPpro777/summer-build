@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState, useEffect } from "react";
+import { useMemo, useRef, useState, useEffect, useLayoutEffect } from "react";
 import { createPortal } from "react-dom";
 import { toPng } from "html-to-image";
 import { Download, X, Share2, Dumbbell, Home, Flame, Check } from "lucide-react";
@@ -160,9 +160,9 @@ export const ShareWeekModal = ({
       role="dialog"
       aria-modal="true"
     >
-      <div className="min-h-full flex flex-col items-center px-4 py-6">
+      <div className="min-h-full flex flex-col items-center px-3 sm:px-4 py-4 sm:py-6">
         {/* top bar */}
-        <div className="w-full max-w-5xl flex items-center justify-between mb-6">
+        <div className="w-full max-w-5xl flex items-center justify-between mb-4 sm:mb-6">
           <div className="flex items-center gap-2 text-zinc-300">
             <Share2 className="w-4 h-4" />
             <span className="text-[10px] tracking-[0.3em] uppercase">
@@ -180,32 +180,32 @@ export const ShareWeekModal = ({
         </div>
 
         {/* palette picker */}
-        <div className="w-full max-w-5xl mb-5">
+        <div className="w-full max-w-5xl mb-4 sm:mb-5">
           <div className="text-[10px] tracking-[0.3em] uppercase text-zinc-500 mb-2">
-            PALETTE · {palette.name} · {palette.description}
+            PALETTE · {palette.name}
           </div>
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-1.5 sm:gap-2">
             {PALETTES.map((p) => (
               <button
                 key={p.id}
                 type="button"
                 onClick={() => setPaletteId(p.id)}
                 data-testid={`palette-${p.id}`}
-                className={`group flex items-center gap-2 px-3 py-2 border transition-colors ${
+                className={`group flex items-center gap-1.5 sm:gap-2 px-2 sm:px-3 py-1.5 sm:py-2 border transition-colors ${
                   paletteId === p.id
                     ? "border-white text-white"
                     : "border-white/15 text-zinc-400 hover:border-white/40 hover:text-white"
                 }`}
               >
                 <span
-                  className="block w-4 h-4 rounded-full border border-white/30"
+                  className="block w-3 h-3 sm:w-4 sm:h-4 rounded-full border border-white/30"
                   style={{ background: p.bg }}
                 />
                 <span
-                  className="block w-3 h-3 rounded-full"
+                  className="block w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full"
                   style={{ background: p.accent }}
                 />
-                <span className="text-[11px] font-display tracking-widest">
+                <span className="text-[10px] sm:text-[11px] font-display tracking-widest">
                   {p.name}
                 </span>
                 {paletteId === p.id && <Check className="w-3 h-3 text-white" />}
@@ -214,36 +214,25 @@ export const ShareWeekModal = ({
           </div>
         </div>
 
-        {/* Card preview */}
-        <div className="w-full max-w-[540px] flex flex-col items-center">
-          <ShareCard
-            ref={cardRef}
-            palette={palette}
-            weekRange={weekRange}
-            crossfitDays={crossfitDays}
-            maisonDays={maisonDays}
-            sessions={sessions}
-            totalCrossfitHours={totalCrossfitHours}
-            totalMaison={totalMaison}
-            streak={streak}
-            weeklyPct={weeklyPct}
-            todayPct={todayPct}
-          />
-
-          <button
-            type="button"
-            onClick={handleDownload}
-            disabled={downloading}
-            data-testid="share-download-btn"
-            className="mt-6 w-full flex items-center justify-center gap-3 px-6 py-4 bg-[#CCFF00] hover:bg-white text-black font-display uppercase tracking-wider transition-colors disabled:opacity-60"
-          >
-            <Download className="w-4 h-4" />
-            {downloading ? "Génération…" : "Télécharger l'image (1080×1350)"}
-          </button>
-          <p className="mt-2 text-[10px] uppercase tracking-widest text-zinc-500 text-center">
-            Format 4:5 — optimisé Instagram / story / feed
-          </p>
-        </div>
+        {/* Card preview — scaled to fit viewport on mobile, no horizontal scroll */}
+        <ScaledCardWrapper
+          paletteId={paletteId}
+          cardProps={{
+            palette,
+            weekRange,
+            crossfitDays,
+            maisonDays,
+            sessions,
+            totalCrossfitHours,
+            totalMaison,
+            streak,
+            weeklyPct,
+            todayPct,
+          }}
+          cardRef={cardRef}
+          downloading={downloading}
+          onDownload={handleDownload}
+        />
       </div>
     </div>,
     document.body
@@ -252,6 +241,70 @@ export const ShareWeekModal = ({
 
 // Render the actual shareable card. ref'd to the outer div so toPng captures it.
 import { forwardRef } from "react";
+
+// Scales the 540×675 share card down to fit any viewport (no horizontal scroll on mobile).
+// The card itself remains 540×675 internally so the PNG export stays high-quality.
+const CARD_W = 540;
+const CARD_H = 675;
+
+const ScaledCardWrapper = ({ cardProps, cardRef, downloading, onDownload }) => {
+  const containerRef = useRef(null);
+  const [scale, setScale] = useState(1);
+
+  useLayoutEffect(() => {
+    const update = () => {
+      const node = containerRef.current;
+      if (!node) return;
+      const available = Math.min(node.clientWidth, CARD_W);
+      const next = available / CARD_W;
+      setScale(next > 0 ? next : 1);
+    };
+    update();
+    window.addEventListener("resize", update);
+    return () => window.removeEventListener("resize", update);
+  }, []);
+
+  return (
+    <div
+      ref={containerRef}
+      className="w-full max-w-[540px] flex flex-col items-center"
+    >
+      {/* scaled preview wrapper — keeps the card pixel-accurate while fitting any width */}
+      <div
+        className="relative w-full"
+        style={{ height: CARD_H * scale }}
+      >
+        <div
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            width: CARD_W,
+            height: CARD_H,
+            transform: `scale(${scale})`,
+            transformOrigin: "top left",
+          }}
+        >
+          <ShareCard ref={cardRef} {...cardProps} />
+        </div>
+      </div>
+
+      <button
+        type="button"
+        onClick={onDownload}
+        disabled={downloading}
+        data-testid="share-download-btn"
+        className="mt-5 sm:mt-6 w-full flex items-center justify-center gap-3 px-4 sm:px-6 py-3.5 sm:py-4 bg-[#CCFF00] hover:bg-white text-black font-display uppercase tracking-wider text-sm sm:text-base transition-colors disabled:opacity-60"
+      >
+        <Download className="w-4 h-4" />
+        {downloading ? "Génération…" : "Télécharger l'image"}
+      </button>
+      <p className="mt-2 text-[10px] uppercase tracking-widest text-zinc-500 text-center">
+        Format 4:5 · 1080×1350 · optimisé Instagram
+      </p>
+    </div>
+  );
+};
 
 const ShareCard = forwardRef(function ShareCard(
   {
