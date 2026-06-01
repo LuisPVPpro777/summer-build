@@ -1,0 +1,28 @@
+{
+  "short_name": "Summer Build",
+  "name": "Protocole Summer Build",
+  "description": "Discipline militaire. Précision quotidienne. Aucune dérive tolérée.",
+  "icons": [
+    {
+      "src": "./icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "./icon-maskable.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ],
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "display_override": ["standalone", "fullscreen", "minimal-ui"],
+  "orientation": "portrait",
+  "theme_color": "#0a0a0a",
+  "background_color": "#0a0a0a",
+  "lang": "fr-FR",
+  "categories": ["fitness", "lifestyle", "productivity"]
+}

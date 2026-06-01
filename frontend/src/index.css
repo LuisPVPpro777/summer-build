@@ -55,6 +55,37 @@ body {
         );
     background-attachment: fixed;
     min-height: 100vh;
+    /* iOS standalone: prevent overscroll-glow & rubber-band */
+    overscroll-behavior-y: none;
+}
+
+/* PWA standalone: respect iOS notch & home indicator */
+@supports (padding: max(0px)) {
+    body {
+        padding-top: env(safe-area-inset-top);
+        padding-bottom: env(safe-area-inset-bottom);
+        padding-left: env(safe-area-inset-left);
+        padding-right: env(safe-area-inset-right);
+    }
+}
+
+/* When launched as installed PWA on iOS / Android */
+@media (display-mode: standalone), (display-mode: fullscreen) {
+    html,
+    body {
+        /* hide any system scrollbars / chrome */
+        overscroll-behavior: contain;
+        -webkit-tap-highlight-color: transparent;
+        user-select: none;
+        -webkit-user-select: none;
+    }
+    /* re-enable selection on inputs & key text */
+    input,
+    textarea,
+    [contenteditable] {
+        user-select: text;
+        -webkit-user-select: text;
+    }
 }
 
 body::before {

@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <rect width="512" height="512" fill="#0a0a0a"/>
+  <rect x="24" y="24" width="464" height="464" fill="none" stroke="#CCFF00" stroke-width="2"/>
+  <text x="256" y="232" text-anchor="middle" font-family="'Oswald','Arial Narrow',sans-serif" font-weight="700" font-size="200" fill="#CCFF00" letter-spacing="-8" dominant-baseline="middle">SB</text>
+  <text x="256" y="360" text-anchor="middle" font-family="'IBM Plex Sans','Arial',sans-serif" font-weight="500" font-size="34" fill="#F4F4F5" letter-spacing="8">PROTOCOL</text>
+  <text x="256" y="408" text-anchor="middle" font-family="'IBM Plex Sans','Arial',sans-serif" font-weight="500" font-size="22" fill="#71717a" letter-spacing="14">V-SHAPE</text>
+  <rect x="24" y="24" width="40" height="2" fill="#CCFF00"/>
+  <rect x="24" y="24" width="2" height="40" fill="#CCFF00"/>
+  <rect x="448" y="486" width="40" height="2" fill="#CCFF00"/>
+  <rect x="486" y="448" width="2" height="40" fill="#CCFF00"/>
+</svg>
