@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useProtocolStore } from "@/hooks/useProtocolStore";
 import { useAutoTheme } from "@/hooks/useAutoTheme";
 import { useAgenda } from "@/hooks/useAgenda";
+import { useGallery } from "@/hooks/useGallery";
 import CommandHeader from "@/components/CommandHeader";
 import DailyChecklist from "@/components/DailyChecklist";
 import InvariantRules from "@/components/InvariantRules";
@@ -11,6 +12,10 @@ import Agenda from "@/components/Agenda";
 import GymAlert from "@/components/GymAlert";
 import TodayMission from "@/components/TodayMission";
 import ShareWeekModal from "@/components/ShareWeekModal";
+import SideMenu from "@/components/SideMenu";
+import TopBar from "@/components/TopBar";
+import BreakfastCapture from "@/components/BreakfastCapture";
+import AddCustomTaskModal from "@/components/AddCustomTaskModal";
 import { Sun, Moon, HardDrive } from "lucide-react";
 
 const Footer = ({ theme }) => (
@@ -43,7 +48,12 @@ export default function Dashboard() {
   const store = useProtocolStore();
   const agenda = useAgenda();
   const theme = useAutoTheme();
+  const gallery = useGallery();
+
+  const [menuOpen, setMenuOpen] = useState(false);
   const [shareOpen, setShareOpen] = useState(false);
+  const [captureOpen, setCaptureOpen] = useState(false);
+  const [addTaskOpen, setAddTaskOpen] = useState(false);
 
   if (!store.hydrated) {
     return (
@@ -58,6 +68,7 @@ export default function Dashboard() {
 
   return (
     <>
+      <SideMenu open={menuOpen} onClose={() => setMenuOpen(false)} />
       <GymAlert sessions={agenda.sessions} />
       <ShareWeekModal
         open={shareOpen}
@@ -69,10 +80,23 @@ export default function Dashboard() {
         weeklyAvg={store.weeklyAvg}
         completion={store.completion}
       />
+      <BreakfastCapture
+        open={captureOpen}
+        onClose={() => setCaptureOpen(false)}
+        onCapture={gallery.addPhoto}
+      />
+      <AddCustomTaskModal
+        open={addTaskOpen}
+        onClose={() => setAddTaskOpen(false)}
+        onAdd={store.addCustomTask}
+      />
+
       <main
-        className="relative max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-10 py-6 sm:py-10"
+        className="relative max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-10 py-4 sm:py-6"
         data-testid="dashboard-root"
       >
+        <TopBar onOpenMenu={() => setMenuOpen(true)} />
+
         <CommandHeader
           completion={store.completion}
           completedCount={store.completedCount}
@@ -96,6 +120,11 @@ export default function Dashboard() {
               completion={store.completion}
               toggle={store.toggle}
               reset={store.reset}
+              tasks={store.tasks}
+              onRemoveCustom={store.removeCustomTask}
+              onAddCustom={() => setAddTaskOpen(true)}
+              onBreakfastCheck={() => setCaptureOpen(true)}
+              hasBreakfastPhotoToday={gallery.hasPhotoToday}
             />
             <InvariantRules />
           </div>

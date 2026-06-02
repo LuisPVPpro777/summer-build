@@ -127,16 +127,32 @@ export const HOME_WORKOUT = {
 export const minutesNow = (date = new Date()) =>
   date.getHours() * 60 + date.getMinutes();
 
+// Parse "HH:MM" into minutes since midnight
+export const parseTimeToMinutes = (str) => {
+  if (!str) return 0;
+  const [h, m] = str.split(":").map(Number);
+  return (h || 0) * 60 + (m || 0);
+};
+
+// Merge default tasks + custom tasks, sort by timeMinutes
+export const mergeAndSortTasks = (customTasks = []) => {
+  const customNormalized = customTasks.map((t) => ({
+    ...t,
+    timeMinutes: parseTimeToMinutes(t.time),
+    isCustom: true,
+  }));
+  return [...DAILY_CHECKLIST, ...customNormalized].sort(
+    (a, b) => a.timeMinutes - b.timeMinutes
+  );
+};
+
 // Determine active task index based on now (last task whose time <= now)
-export const computeActiveTaskId = (date = new Date()) => {
+export const computeActiveTaskId = (tasks = DAILY_CHECKLIST, date = new Date()) => {
   const now = minutesNow(date);
-  // Tasks are sorted; 00:30 is treated as 24:30 (next-day overlap).
-  // If "now" is before first task (e.g. before 09:30) — no active highlight.
-  // If past last "daytime" task (after 18:00) — physical stays active until shutdown window.
-  const tasks = DAILY_CHECKLIST;
-  // Handle late-night "shutdown" window (00:00 - 02:00)
+  // Late-night shutdown window (00:00 - 02:00) — keep "shutdown" active if present
   if (now >= 0 && now < 2 * 60) {
-    return "shutdown";
+    const sd = tasks.find((t) => t.id === "shutdown");
+    if (sd) return "shutdown";
   }
   let active = null;
   for (const t of tasks) {

@@ -1,6 +1,7 @@
 import "@/App.css";
 import { HashRouter, Routes, Route } from "react-router-dom";
 import Dashboard from "@/pages/Dashboard";
+import Gallery from "@/pages/Gallery";
 import { Toaster } from "sonner";
 
 function App() {
@@ -9,6 +10,7 @@ function App() {
       <HashRouter>
         <Routes>
           <Route path="/" element={<Dashboard />} />
+          <Route path="/gallery" element={<Gallery />} />
         </Routes>
       </HashRouter>
       <Toaster
