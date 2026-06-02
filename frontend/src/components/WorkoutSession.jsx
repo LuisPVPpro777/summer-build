@@ -1,10 +1,10 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Check, ChevronRight, Pause, Play, Trophy, Volume2, VolumeX } from "lucide-react";
+import { X, Check, ChevronRight, Pause, Play, Trophy, Volume2, VolumeX, Image as ImageIcon } from "lucide-react";
 import confetti from "canvas-confetti";
 import { toast } from "sonner";
-import { SESSION_PHASES, formatTime } from "@/lib/workoutSession";
+import { SESSION_PHASES as DEFAULT_PHASES, formatTime } from "@/lib/workoutSession";
 
 // Simple Web Audio API beep
 const playBeep = (freq = 880, duration = 0.18, type = "sine") => {
@@ -26,7 +26,11 @@ const playBeep = (freq = 880, duration = 0.18, type = "sine") => {
   }
 };
 
-export const WorkoutSession = ({ open, onClose }) => {
+export const WorkoutSession = ({ open, onClose, phases }) => {
+  const SESSION_PHASES = useMemo(
+    () => (Array.isArray(phases) && phases.length > 0 ? phases : DEFAULT_PHASES),
+    [phases]
+  );
   const [phaseIdx, setPhaseIdx] = useState(0);
   const [seconds, setSeconds] = useState(0);
   const [paused, setPaused] = useState(false);
@@ -242,14 +246,18 @@ export const WorkoutSession = ({ open, onClose }) => {
               </div>
 
               {/* tutorial image */}
-              <div className="mt-6 w-[200px] h-[200px] sm:w-[260px] sm:h-[260px] border border-white/15 overflow-hidden relative">
-                <img
-                  src={isWork ? phase.image : phase.nextImage}
-                  alt={phase.label}
-                  className="w-full h-full object-cover"
-                  draggable={false}
-                />
-                <div className="absolute inset-0 ring-1 ring-inset ring-white/10" />
+              <div className="mt-6 w-[200px] h-[200px] sm:w-[260px] sm:h-[260px] border border-white/15 overflow-hidden relative bg-[#141417] flex items-center justify-center">
+                {(isWork ? phase.image : phase.nextImage) ? (
+                  <img
+                    src={isWork ? phase.image : phase.nextImage}
+                    alt={phase.label}
+                    className="w-full h-full object-cover"
+                    draggable={false}
+                  />
+                ) : (
+                  <ImageIcon className="w-12 h-12 text-zinc-700" />
+                )}
+                <div className="absolute inset-0 ring-1 ring-inset ring-white/10 pointer-events-none" />
               </div>
 
               {/* label */}
