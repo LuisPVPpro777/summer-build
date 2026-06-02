@@ -325,12 +325,44 @@ html.theme-light svg circle[stroke="#27272a"] {
     stroke: #e4e2dc;
 }
 
-/* stat bars background fallback */
+/* stat bars background fallback — scoped so it doesn't break form buttons */
 html.theme-light .bg-zinc-600 {
     background-color: #71717a;
 }
-html.theme-light .bg-zinc-200 {
+html.theme-light [data-testid="stats-panel"] .bg-zinc-200,
+html.theme-light [data-testid="week-bars"] .bg-zinc-200 {
     background-color: #18181b;
+}
+
+/* Form fields & inputs — switch dark surface to light in light mode */
+html.theme-light .bg-\[\#141417\] {
+    background-color: #ffffff;
+}
+html.theme-light input[type="text"],
+html.theme-light input[type="number"],
+html.theme-light input[type="time"],
+html.theme-light textarea {
+    background-color: #ffffff;
+    color: #18181b;
+    border-color: #d4d4d8;
+}
+html.theme-light input::placeholder,
+html.theme-light textarea::placeholder {
+    color: #a1a1aa;
+}
+/* Native time-picker clock icon (Webkit) — invert from white to dark */
+html.theme-light input[type="time"]::-webkit-calendar-picker-indicator {
+    filter: invert(0.7);
+}
+
+/* Buttons whose dark text must stay readable on light bg keep text-black */
+html.theme-light .text-black {
+    color: #0a0a0a;
+}
+
+/* Unselected time-preset / day-button outlines — visible in light */
+html.theme-light .border-zinc-500 {
+    border-color: #a1a1aa;
 }
 
 /* Active task volt bg adjustment */
